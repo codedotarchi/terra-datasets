@@ -1,6 +1,7 @@
+import os
+import random
 import numpy as np
 from osgeo import gdal
-import random
 from PIL import Image
 
 geo = gdal.Open('imgn38w120_13.img')
