@@ -4,6 +4,7 @@ import numpy as np
 from osgeo import gdal
 from PIL import Image, ImageFilter
 
+# TODO - SWITCH TO PREPARE MASTER DATA ON IMPORT
 
 directory = '../public'
 
@@ -178,7 +179,7 @@ def process_channel(data_arr, channel, patch_size):
     # Default Process for general 8-bit conversion
 
     elif channel == 'contour100':
-        patch = data_arr.copy()
+        patch = data_arr
         for i in range(0, patch.shape[0]):
             for j in range(0, patch.shape[1]):
                 if patch[i][j] > 65000 or patch[i][j] == 0: patch[i][j] = 0
@@ -187,7 +188,8 @@ def process_channel(data_arr, channel, patch_size):
         patch = patch.astype(np.uint8)
         image = Image.fromarray(patch, mode='L')
         image = image.resize((patch_size, patch_size), resample=Image.HAMMING)
-        # image = image.filter(ImageFilter.GaussianBlur(radius=int(patch_size/100)))
+        # image = image.filter(ImageFilter.GaussianBlur(radius=int(patch_size/100))
+        print('I did it')
         return image
 
     elif channel == 'slope':
