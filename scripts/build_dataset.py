@@ -4,20 +4,18 @@ import numpy as np
 from osgeo import gdal
 from PIL import Image, ImageFilter
 
-directory = '../public'
+
+directory = '../temp'
+
 location = 'Yos'
+
+patch_sizes = [2048, 1024, 512, 256, 128, 64]
 
 num_samples = {
     'train': 10,
     'test': 2,
     'val': 3
 }
-
-patch_sizes = [2048, 1024, 512, 256, 128, 64]
-
-
-
-
 
 def read_raw_channel_as_array(directory, location, channel_name):
     raw_channel_names = {
@@ -54,7 +52,8 @@ raw_channel_data['grid16bin2'] = raw_channel_data['topo']
 raw_channel_data['grid16bin4'] = raw_channel_data['topo']
 
 
-# ?? ----------- ADD SCRIPT VARS ABOVE THIS LINE --------------------------------------------
+# ?? ------------------- ADD SCRIPT VARS ABOVE THIS LINE --------------------------------------------
+
 # sets the random seed for repeating the sampling numbers
 random.seed(2019)
 
@@ -168,6 +167,10 @@ def process_channel(data_arr, channel, patch_size):
         image = Image.fromarray(patch, mode='L')
         return image.resize((patch_size, patch_size), resample=Image.HAMMING)
 
+
+#?? --------------------------PATCH GENERATION ----------------------------------------------------
+
+
 # Saves the patch_data dict
 def save_patches(patch_data, directory, location, patch_size, scale, data_type):
     # Create the Directory Structure for the patches
@@ -213,7 +216,7 @@ def generate_patches(raw_data, sample_coords, directory, location, patch_size, s
         save_patches(patch_data, directory, location, patch_size, scale, data_type)
 
 # Generates the dataset for a given location
-def generate_dataset(directory, location):
+def generate_dataset(directory, location, patch_sizes, num_samples):
     # initial patch size to sample, ex: 1024... other scaled patch sizes are downsampled from this
     # ex: 512 scale 2 = 1024 sample downsampled by a factor of 2
     initial_patch_size = patch_sizes[0]
@@ -228,13 +231,14 @@ def generate_dataset(directory, location):
     y_max = y_raw - int(initial_patch_size / 2) - 3
     x_min = int(initial_patch_size / 2) + 1
     x_max = x_raw - int(initial_patch_size / 2) - 3
-    sample_bounds = ((y_min, y_max), (x_min, x_max))
 
-    sample_coords= {
+    sample_coords = {
         'train':        [(random.randint(y_min, y_max), random.randint(x_min, x_max)) for _ in range(num_samples['train'])],
         'test':         [(random.randint(y_min, y_max), random.randint(x_min, x_max)) for _ in range(num_samples['test'])],
         'val':          [(random.randint(y_min, y_max), random.randint(x_min, x_max)) for _ in range(num_samples['val'])]
     }
+
+    print(sample_coords['train'])
 
     for i, patch_size in enumerate(patch_sizes):
         scales = [s for s in range(1, 2 ** i + 1)]
